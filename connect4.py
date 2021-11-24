@@ -1,6 +1,8 @@
 # CS 111 FINAL PROJECT: CONNECT FOUR
 # Orignal code from Breakout Lab by Aaron Bauer
 # Modified and adapted for "Connect Four" Final Project by Issa Mohamed and Markus Gunadi 
+
+#add imports, dictionaries and lists needed to run Connect 4
 import tkinter as tk
 from tkinter import XView
 from tkinter.constants import TRUE
@@ -13,26 +15,25 @@ open_spots = []
 box_dict = {}
 num_box = 0
 is_game_active = [True]
+
+#creates window/board for Connect 4
 gw = GWindow(600, 700)
 for row in range(6):
     for column in range(7):
         num_box += 1
         rect = GRect(column * 50 +100, row * 50 + 100, 50, 50)
-        # rect.setColor('White')
-        # rect.setFilled(False)
         box_dict[rect] = num_box
         gw.add(rect)
         open_spots.append(rect)
 
-
 #Player Functions
 def click_action(e):
+    #conditional so player cannot make more moves after game is over
     if is_game_active[0] == True:
         gobj = gw.getElementAt(e.getX(), e.getY())
         if gobj: 
-            if gobj.getColor() != "#FF0000":
-                gobj_x_value = gobj.getX()
-                gobj_y_value = gobj.getY()
+            #conditional to make sure lowest box on column is filled when any button is clicked
+            if gobj.getColor() != "#FF0000" or gobj.getColor() != "#0000ff":
                 lowest_spot = gobj
                 for spot in open_spots:
                     current_spot_x_value = spot.getX()
@@ -54,20 +55,19 @@ def click_action(e):
                     is_game_active[0] = False
                     endgame("", "Bot")
                 else:
-                    bot_action(gobj)
-                
+                    bot_action(gobj)   
             else:
                 print("This Spot Has Already Been Selected. Please Choose Another Spot.")
         else:
             print("Click Inside The Board!")
 
-#Computer Functions
+#function to check if there is a connect 4
 def check_connect4(list_of_moves):
     if len(list_of_moves) < 4:
         return False
     else:
         for piece in list_of_moves:
-            # 3 to the left 
+            # checks the 3 pieces to the left of new piece
             piece_y_val = piece.getY()
             piece_x_val = piece.getX()
             piece_color = piece.getColor()
@@ -81,7 +81,7 @@ def check_connect4(list_of_moves):
                 if ( (left_one_obj.getColor() == piece_color) and (left_two_obj.getColor() == piece_color) and (left_three_obj.getColor() == piece_color)):
                             print("won left c4")
                             return True
-             # 3 to the right
+            # checks the 3 pieces to the right of new piece
             right_one_x_val = piece_x_val + 50
             right_two_x_val = piece_x_val + 100
             right_three_x_val = piece_x_val + 150
@@ -92,7 +92,7 @@ def check_connect4(list_of_moves):
                 if ( (right_one_obj.getColor() == piece_color) and (right_two_obj.getColor() == piece_color) and (right_three_obj.getColor() == piece_color)):
                             print("won right c4")
                             return True
-                 # 3 above
+            # checks the 3 pieces above new piece
             above_one_y_val = piece_y_val - 50
             above_two_y_val = piece_y_val - 100
             above_three_y_val = piece_y_val - 150
@@ -104,7 +104,7 @@ def check_connect4(list_of_moves):
                             print("won above c4")
                             return True
                  
-            # 3 below
+            # checks the 3 pieces below of new piece
             below_one_y_val = piece_y_val + 50
             below_two_y_val = piece_y_val + 100
             below_three_y_val = piece_y_val + 150
@@ -115,7 +115,7 @@ def check_connect4(list_of_moves):
                 if ( (below_one_obj.getColor() == piece_color) and (below_two_obj.getColor() == piece_color) and (below_three_obj.getColor() == piece_color)):
                             print("won below c4")
                             return True
-            # 3 right diagonal down
+            # checks the 3 pieces to right diagonal down of new piece
             right_diag_one_obj = gw.getElementAt(right_one_x_val, below_one_y_val)
             right_diag_two_obj = gw.getElementAt(right_two_x_val, below_two_y_val)
             right_diag_three_obj = gw.getElementAt(right_three_x_val, below_three_y_val)
@@ -123,7 +123,7 @@ def check_connect4(list_of_moves):
                 if ( (right_diag_one_obj.getColor() == piece_color) and (right_diag_two_obj.getColor() == piece_color) and (right_diag_three_obj.getColor() == piece_color)):
                             print("won right diag c4")
                             return True
-             # 3 left diagonal down
+            # checks the 3 pieces to left diagonal down of new piece
             left_diag_one_obj = gw.getElementAt(left_one_x_val, below_one_y_val)
             left_diag_two_obj = gw.getElementAt(left_two_x_val, below_two_y_val)
             left_diag_three_obj = gw.getElementAt(left_three_x_val, below_three_y_val)
@@ -133,6 +133,7 @@ def check_connect4(list_of_moves):
                             return True
     return False
 
+# code for when player or computer gets Connect 4
 def endgame(who_won, who_ran_out):
     print("Game Over.")
     if who_won == "Player":
@@ -146,8 +147,9 @@ def endgame(who_won, who_ran_out):
             print("Bot Has Run Out of Pieces.")
 
 
-    
+#Computer Functions
 def bot_action(last_move):
+    #bot will make a random move to any open spot on grid
     gobj = random.choice(open_spots)
     lowest_spot = gobj
     for spot in open_spots:
@@ -162,14 +164,13 @@ def bot_action(last_move):
     bot_moves.append(gobj)
     open_spots.remove(gobj)
     print("bot has", 21 - len(bot_moves) , "pieces left.")
+    #conditionals to find if game has ended
     if check_connect4(bot_moves) == True:
         is_game_active[0]= False
         endgame("Bot","")
     if 21 - len(bot_moves) < 0: 
         is_game_active[0] = False
         endgame("", "Player")
-
-    
     return None
          
 gw.addEventListener("click", click_action)
